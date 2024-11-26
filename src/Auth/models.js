@@ -3,8 +3,6 @@ import { sequelize } from '../../config/database.js';
 
 const roles = [
     'ADMIN',
-    'TEACHER',
-    'STUDENT',
     'USER',
     'GUEST'
 ]
@@ -23,7 +21,7 @@ export const User = sequelize.define('User', {
     password: { type: DataTypes.STRING, allowNull: false },
     createdAt: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
-    role: {  type: DataTypes.UUID,  references: { model: RolesLookup, key: 'name' }, allowNull: false, defaultValue: 'User' },
+    role: {  type: DataTypes.UUID,  references: { model: RolesLookup, key: 'name' }, allowNull: false, defaultValue: 'USER' },
     active: { type: DataTypes.BOOLEAN, defaultValue: false },
     authenticated: { type: DataTypes.BOOLEAN, defaultValue: false },
     resetPasswordToken: { type: DataTypes.STRING, nullable: true }

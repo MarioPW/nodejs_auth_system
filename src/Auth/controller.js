@@ -5,7 +5,7 @@ import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import path from 'path';
 import { signupSchema, loginSchema, emailSchema, resetPasswordSchema } from './schemas.js';
-import { sendMail } from '../Utils/mailManager.js';
+import { MailManager } from '../Utils/mailManager.js';
 
 export const authRouter = Router();
 
@@ -13,26 +13,22 @@ export const authRouter = Router();
 authRouter.post('/register', async (req, res) => {
     const reqBody = req.body;
     const validation = signupSchema.safeParse(reqBody);
-    
+
     if (!validation.success) {
         return res.status(400).json({ error: validation.error.message });
     }
-
     const { email, password, name } = validation.data;
-
     try {
         const userExists = await User.findOne({ where: { email } });
         if (userExists) {
             return res.status(401).json({ error: 'User already exists' });
         }
-
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = await User.create({
             email,
             name: name || email,
             password: hashedPassword,
         });
-
         res.status(201).json(newUser);
     } catch (error) {
         res.status(400).json({ error: error.message });
@@ -40,7 +36,7 @@ authRouter.post('/register', async (req, res) => {
 });
 
 authRouter.post('/login', async (req, res) => {
-    const reqBody= req.body;
+    const reqBody = req.body;
     const validation = loginSchema.safeParse(reqBody);
     if (!validation.success) {
         return res.status(400).json({ error: validation.error.message });
@@ -74,37 +70,35 @@ authRouter.post('/login', async (req, res) => {
 authRouter.get('/logout', (res) => {
     res.clearCookie('access_token').send();
 })
-
 authRouter.post('/forgot-password', async (req, res) => {
     const { email } = req.body;
-    const validation = emailSchema.safeParse(email);
+    const validation = emailSchema.safeParse({ email: email });
     if (!validation.success) {
         return res.status(400).json({ error: "Invalid credentials" });
     }
+    const user = await User.findOne({ where: { email: validation.data.email } });
+    if (!user) {
+        return res.status(401).json({ error: "Invalid credentials" });
+    }
     try {
-        const user = await User.findOne({ where: { email: validation.data } });
-        if (!user) {
-            return res.status(401).json({ error: "Invalid credentials" });
-        }
         const token = crypto.randomUUID();
 
         const emailTemplate = {
-            to: validation.data,
+            to: user.email,
             text: "This email is to reset your password. If you haven't requested it, ignore this email.",
             subject: "Reset password",
             html: `<strong>it works!</strong><br>Click <a href='${process.env.ROOT_DOMAIN}/auth/reset-password-form/${token}'>here</a> to reset your password`,
         }
-        
-        sendMail(emailTemplate);
+        MailManager.sendMail(emailTemplate);
 
         if (error) {
             return res.status(400).json({ error });
         }
         user.resetPasswordToken = token;
-        res.status(200).json({ "message": "Email sent successfully"});
+        res.status(200).json({ "message": "Email sent successfully" });
         await user.save();
     } catch (error) {
-        res.status(400).json( { error: error.message });
+        res.status(400).json({ error: error.message });
     }
 })
 
@@ -130,7 +124,7 @@ authRouter.get('/reset-password/:token', async (req, res) => {
         user.password = hashedPassword;
         user.resetPasswordToken = null;
         user.save();
-        res.status(200).json({ "message": "Password changed successfully"});
+        res.status(200).json({ "message": "Password changed successfully" });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }

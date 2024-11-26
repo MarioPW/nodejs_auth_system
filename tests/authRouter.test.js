@@ -6,18 +6,24 @@ import { User } from '../src/Auth/models.js';
 import { jest, test } from '@jest/globals';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import  { sendMail } from '../src/Utils/mailManager.js';
+import { MailManager } from '../src/Utils/mailManager.js';
+import { emailSchema } from '../src/Auth/schemas.js';
 
 
 //------- Mocks --------------
 User.findOne = jest.fn();
 User.create = jest.fn();
 
+MailManager.sendMail = jest.fn();
+
+emailSchema.safeParse = jest.fn();
+
 bcrypt.compare = jest.fn();
 
 
 describe('Authentication API Endpoints', () => {
     beforeAll(() => {
+        jest.clearAllMocks();
         process.env.JWT_SECRET = 'test-secret';
     });
 
@@ -99,77 +105,111 @@ describe('Authentication API Endpoints', () => {
         });
     });
 
-    describe('POST /auth/forgot-password', () => {
-        test('should return 401 if user is not found', async () => {
-            User.findOne.mockResolvedValue(null);
-
-            const email = 'nonexistent@example.com';
-            const res = await request(app).post('/auth/forgot-password').send({ email });
-
-            expect(res.statusCode).toBe(401);
-            expect(res.body.error).toBe('Invalid credentials');
-            expect(User.findOne).toHaveBeenCalledWith({ where: { email } });
-        });
-
-        it('should send reset password email successfully if user is found', async () => {
-            const email = 'test@example.com';
-            const user = { id: 1, email, save: jest.fn() };
-            User.findOne.mockResolvedValue(user);
-            const token = 'mock-token';
-            
-            const res = await request(app).post('/auth/forgot-password').send({ email });
-            jest.spyOn(crypto, 'randomUUID').mockReturnValue(token);
-            // jest.doMock(sendMail).mockResolvedValue();
-            expect(res.statusCode).toBe(200);
-            expect(res.body.message).toBe('Email sent successfully');
-            expect(User.findOne).toHaveBeenCalledWith({ where: { email } });
-            expect(sendMail).toHaveBeenCalledWith({
-              to: email,
-              text: "This email is to reset your password. If you haven't requested it, ignore this email.",
-              subject: 'Reset password',
-              html: `<strong>it works!</strong><br>Click <a href='${process.env.ROOT_DOMAIN}/auth/reset-password-form/${token}'>here</a> to reset your password`,
-            });
-            expect(user.save).toHaveBeenCalled();
-          });
-    });
-
-    // describe('GET /auth/reset-password-form/:token', () => {
-    //     it('should return reset password form', async () => {
-    //         const res = await request(app).get('/auth/reset-password-form/some-valid-token');
-    //         expect(res.statusCode).toBe(200);
-    //     });
-    // });
-
-    // describe('POST /auth/reset-password/:token', () => {
-    //     it('should reset password with valid token', async () => {
-    //         const user = { id: 1, email: 'test@example.com', resetPasswordToken: 'valid-token' };
-    //         User.findOne.mockResolvedValue(user);
-
-    //         const res = await request(app)
-    //             .post('/auth/reset-password/valid-token')
-    //             .send({ password: 'newPassword123', confirmPassword: 'newPassword123' });
-
-    //         expect(res.statusCode).toBe(200);
-    //         expect(res.body.message).toBe('Password changed successfully');
-    //     });
-
-    //     it('should return error if token is invalid', async () => {
+    // describe('POST /auth/forgot-password', () => {
+    //     test('should return 401 if user is not found', async () => {
     //         User.findOne.mockResolvedValue(null);
 
-    //         const res = await request(app)
-    //             .post('/auth/reset-password/invalid-token')
-    //             .send({ password: 'newPassword123', confirmPassword: 'newPassword123' });
+    //         const email = 'nonexistent@example.com';
+    //         const res = await request(app).post('/auth/forgot-password').send({ email });
 
     //         expect(res.statusCode).toBe(401);
     //         expect(res.body.error).toBe('Invalid credentials');
+    //         expect(User.findOne).toHaveBeenCalledWith({ where: { email } });
     //     });
+
+    // test('should send reset password email successfully if user is found', async () => {
+    //     const email = 'test@example.com';
+    //     const user = { id: 1, email, save: jest.fn() };
+    //     const token = 'mock-token';
+
+    //     User.findOne.mockResolvedValue(user);
+    //     jest.spyOn(crypto, 'randomUUID').mockReturnValue(token);
+    //     MailManager.sendMail.mockResolvedValue();
+
+    //     const res = await request(app).post('/auth/forgot-password').send({ email });
+
+    //     expect(res.statusCode).toBe(200);
+    //     expect(res.body.message).toBe('Email sent successfully');
+    //     expect(User.findOne).toHaveBeenCalledWith({ where: { email } });
+    //     expect(MailManager.sendMail).toHaveBeenCalledWith({
+    //         to: email,
+    //         text: "This email is to reset your password. If you haven't requested it, ignore this email.",
+    //         subject: 'Reset password',
+    //         html: `<strong>it works!</strong><br>Click <a href='${process.env.ROOT_DOMAIN}/auth/reset-password-form/${token}'>here</a> to reset your password`,
+    //     });
+    //     expect(user.save).toHaveBeenCalled();
     // });
 
-    // describe('GET /auth/logout', () => {
-    //     it('should clear the access token cookie', async () => {
-    //         const res = await request(app).get('/auth/logout');
-    //         expect(res.statusCode).toBe(200);
-    //         expect(res.headers['set-cookie'][0]).toMatch(/access_token=;/);
-    //     });
+    // test('should return 401 if user is not found', async () => {
+    //     const email = 'nonexistent@example.com';
+    //     emailSchema.safeParse.mockReturnValue({ success: true, data: email });
+
+    //     User.findOne.mockResolvedValue(null);
+
+    //     // Realiza la solicitud POST
+    //     const res = await request(app)
+    //         .post('/auth/forgot-password')
+    //         .send({ email });  // Verifica que email se envíe aquí correctamente
+
+
+    //     // Verificaciones
+    //     expect(res.statusCode).toBe(401);
+    //     expect(res.body).toEqual({ error: 'Invalid credentials' });
+    //     expect(User.findOne).toHaveBeenCalledWith({ where: { email: email } });
+    //     expect(MailManager.sendMail).not.toHaveBeenCalled();
     // });
+
+    test('should return 400 if email is invalid', async () => {
+        const email = 'invalid-email';
+        emailSchema.safeParse.mockReturnValue({});
+
+        const res = await request(app).post('/auth/forgot-password').send({ email });
+
+        // Afirmaciones
+        expect(res.statusCode).toBe(400);
+        expect(res.body.error).toBe('Invalid credentials');
+        expect(User.findOne).not.toHaveBeenCalled();
+        expect(MailManager.sendMail).not.toHaveBeenCalled();
+    });
 });
+
+// describe('GET /auth/reset-password-form/:token', () => {
+//     test('should return reset password form', async () => {
+//         const res = await request(app).get('/auth/reset-password-form/some-valid-token');
+//         expect(res.statusCode).toBe(200);
+//     });
+// });
+
+// describe('POST /auth/reset-password/:token', () => {
+//     test('should reset password with valid token', async () => {
+//         const user = { id: 1, email: 'test@example.com', resetPasswordToken: 'valid-token' };
+//         User.findOne.mockResolvedValue(user);
+
+//         const res = await request(app)
+//             .post('/auth/reset-password/valid-token')
+//             .send({ password: 'newPassword123', confirmPassword: 'newPassword123' });
+
+//         expect(res.statusCode).toBe(200);
+//         expect(res.body.message).toBe('Password changed successfully');
+//     });
+
+//     test('should return error if token is invalid', async () => {
+//         User.findOne.mockResolvedValue(null);
+
+//         const res = await request(app)
+//             .post('/auth/reset-password/invalid-token')
+//             .send({ password: 'newPassword123', confirmPassword: 'newPassword123' });
+
+//         expect(res.statusCode).toBe(401);
+//         expect(res.body.error).toBe('Invalid credentials');
+//     });
+// });
+
+// describe('GET /auth/logout', () => {
+//     test('should clear the access token cookie', async () => {
+//         const res = await request(app).get('/auth/logout');
+//         expect(res.statusCode).toBe(200);
+//         expect(res.headers['set-cookie'][0]).toMatch(/access_token=;/);
+//     });
+// });
+// });

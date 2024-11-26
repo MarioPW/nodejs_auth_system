@@ -10,14 +10,16 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-
-export const sendMail = async (emailTemplate) => {
-  const { to, subject, text, html } = emailTemplate;
-    return await transporter.sendMail({
-      from: process.env.MAIN_EMAIL,
-      to,
-      subject,
-      text,
-      html,
-    });
-  }
+export class MailManager {
+  static sendMail = async (emailTemplate) => {
+    const { to, subject, text, html } = emailTemplate;
+    console.log(transporter)
+      return await transporter.sendMail({
+        from: process.env.MAIN_EMAIL,
+        to,
+        subject,
+        text,
+        html,
+      });
+    }
+}

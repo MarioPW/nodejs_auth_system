@@ -32,13 +32,15 @@ export const loginSchema = z.object({
     }).min(6).max(50),
 })
 
-export const emailSchema = z.string({
-    email: z.string({
+export const emailSchema = z.object({
+    email: z
+      .string({
         required_error: "Email is required",
-    }).email({
+      })
+      .email({
         message: "Invalid email",
-    }),
-})
+      }),
+  });
 
 export const resetPasswordSchema = z.object({
     password: z.string({
