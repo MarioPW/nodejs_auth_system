@@ -1,6 +1,6 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
-import { authRouter } from './Auth/controller.js';
+import { authRouter } from './Auth/controller';
 
 const app = express();
 app.use(express.json());
