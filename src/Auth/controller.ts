@@ -1,86 +1,130 @@
-import { Router, text } from 'express';
-import { User } from './models.js';
+import { Router, Request, Response } from 'express';
+import { User, UserInstance } from './models'; // Importar UserInstance
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import path from 'path';
-import { signupSchema, loginSchema, emailSchema, resetPasswordSchema } from './schemas.js';
-import { MailManager } from '../Utils/mailManager.js';
+import { signupSchema, loginSchema, emailSchema, resetPasswordSchema } from './schemas';
+import { MailManager } from '../Utils/mailManager';
 
 export const authRouter = Router();
 
+// Interfaces para los requests
+interface RegisterRequest extends Request {
+  body: {
+    email: string;
+    password: string;
+    name?: string;
+  }
+}
 
-authRouter.post('/register', async (req, res) => {
+interface LoginRequest extends Request {
+  body: {
+    email: string;
+    password: string;
+  }
+}
+
+interface ForgotPasswordRequest extends Request {
+  body: {
+    email: string;
+  }
+}
+
+interface ResetPasswordRequest extends Request {
+  params: {
+    token: string;
+  };
+  body: {
+    password: string;
+    confirmPassword: string;
+  }
+}
+
+authRouter.post('/register', async (req: RegisterRequest, res: Response) => {
     const reqBody = req.body;
     const validation = signupSchema.safeParse(reqBody);
 
     if (!validation.success) {
         return res.status(400).json({ error: validation.error.message });
     }
+    
     const { email, password, name } = validation.data;
+    
     try {
         const userExists = await User.findOne({ where: { email } });
         if (userExists) {
             return res.status(401).json({ error: 'User already exists' });
         }
+        
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = await User.create({
             email,
             name: name || email,
             password: hashedPassword,
+            role: 'USER' // Añadir el campo role requerido
         });
+        
         res.status(201).json(newUser);
-    } catch (error) {
+    } catch (error: any) {
         res.status(400).json({ error: error.message });
     }
 });
 
-authRouter.post('/login', async (req, res) => {
+authRouter.post('/login', async (req: LoginRequest, res: Response) => {
     const reqBody = req.body;
     const validation = loginSchema.safeParse(reqBody);
+    
     if (!validation.success) {
         return res.status(400).json({ error: validation.error.message });
     }
+    
     try {
-        const user = await User.findOne({ where: { email: validation.email } });
+        const user = await User.findOne({ where: { email: validation.data.email } }) as UserInstance | null;
         if (!user) {
             return res.status(401).json({ error: 'Invalid credentials' });
-        } else {
         }
-        const checkPassword = await bcrypt.compare(validation.password, user.password);
+
+        const checkPassword = await bcrypt.compare(validation.data.password, user.password);
         if (!checkPassword) {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
+        
         const token = jwt.sign(
             { id: user.id, role: user.role },
-            process.env.JWT_SECRET,
+            process.env.JWT_SECRET!,
             { expiresIn: '1h' }
-        )
+        );
+        
         res.cookie('access_token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'strict',
             maxAge: 3600000
         }).json(token);
-    } catch (error) {
+    } catch (error: any) {
         res.status(400).json({ error: error.message });
     }
-})
+});
 
-authRouter.get('/logout', (res) => {
+authRouter.get('/logout', (req: Request, res: Response) => {
     res.clearCookie('access_token').send();
-})
-authRouter.post('/forgot-password', async (req, res) => {
+});
+
+authRouter.post('/forgot-password', async (req: ForgotPasswordRequest, res: Response) => {
     const { email } = req.body;
-    const validation = emailSchema.safeParse({ email: email });
+    const validation = emailSchema.safeParse({ email });
+    
     if (!validation.success) {
-        return res.status(400).json({ error: "Invalid credentials" });
+        return res.status(400).json({ error: "Invalid email" });
     }
-    const user = await User.findOne({ where: { email: validation.data.email } });
-    if (!user) {
-        return res.status(401).json({ error: "Invalid credentials" });
-    }
+    
     try {
+        const user = await User.findOne({ where: { email: validation.data.email } }) as UserInstance | null;
+        if (!user) {
+            return res.status(401).json({ error: "User not found" });
+        }
+        
         const token = crypto.randomUUID();
 
         const emailTemplate = {
@@ -88,44 +132,47 @@ authRouter.post('/forgot-password', async (req, res) => {
             text: "This email is to reset your password. If you haven't requested it, ignore this email.",
             subject: "Reset password",
             html: `<strong>it works!</strong><br>Click <a href='${process.env.ROOT_DOMAIN}/auth/reset-password-form/${token}'>here</a> to reset your password`,
-        }
-        MailManager.sendMail(emailTemplate);
+        };
+        
+        await MailManager.sendMail(emailTemplate);
 
-        if (error) {
-            return res.status(400).json({ error });
-        }
         user.resetPasswordToken = token;
-        res.status(200).json({ "message": "Email sent successfully" });
         await user.save();
-    } catch (error) {
+        
+        res.status(200).json({ message: "Email sent successfully" });
+    } catch (error: any) {
         res.status(400).json({ error: error.message });
     }
-})
+});
 
-authRouter.get('/reset-password-form/:token', async (req, res) => {
+authRouter.get('/reset-password-form/:token', async (req: Request<{ token: string }>, res: Response) => {
     const { token } = req.params;
     const filePath = path.join(process.cwd(), 'src', 'public', 'resetPasswordForm.html');
     res.sendFile(filePath);
-})
+});
 
-authRouter.get('/reset-password/:token', async (req, res) => {
+authRouter.post('/reset-password/:token', async (req: ResetPasswordRequest, res: Response) => {
     const { token } = req.params;
     const passwords = req.body;
     const validation = resetPasswordSchema.safeParse(passwords);
+    
     if (!validation.success) {
         return res.status(400).json({ error: validation.error.message });
     }
+    
     try {
-        const user = await User.findOne({ where: { resetPasswordToken: token } });
+        const user = await User.findOne({ where: { resetPasswordToken: token } }) as UserInstance | null;
         if (!user) {
-            return res.status(401).json({ error: "Invalid credentials" });
+            return res.status(401).json({ error: "Invalid token" });
         }
-        const hashedPassword = await bcrypt.hash(validation.password, 10)
+        
+        const hashedPassword = await bcrypt.hash(validation.data.password, 10);
         user.password = hashedPassword;
         user.resetPasswordToken = null;
-        user.save();
-        res.status(200).json({ "message": "Password changed successfully" });
-    } catch (error) {
+        await user.save();
+        
+        res.status(200).json({ message: "Password changed successfully" });
+    } catch (error: any) {
         res.status(400).json({ error: error.message });
     }
-})
+});
