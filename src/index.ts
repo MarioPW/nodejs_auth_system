@@ -9,10 +9,9 @@ async function startServer(): Promise<void> {
   try {
     await testConnection();
     await sequelize.sync({ force: false });
-    console.log('Database synchronized');
+    console.log('✅ Database synchronized');
     
     await insertRoles();
-    console.log('Roles inserted successfully');
     
     const port = process.env.PORT || 3000;
     app.listen(port, () => {

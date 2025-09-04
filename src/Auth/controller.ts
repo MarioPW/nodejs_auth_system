@@ -4,42 +4,12 @@ import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import path from 'path';
+import { RegisterRequest, LoginRequest, ForgotPasswordRequest, ResetPasswordRequest } from '../types/requests';
 import { signupSchema, loginSchema, emailSchema, resetPasswordSchema } from './schemas';
 import { MailManager } from '../Utils/mailManager';
 
 export const authRouter = Router();
 
-// Interfaces para los requests
-interface RegisterRequest extends Request {
-  body: {
-    email: string;
-    password: string;
-    name?: string;
-  }
-}
-
-interface LoginRequest extends Request {
-  body: {
-    email: string;
-    password: string;
-  }
-}
-
-interface ForgotPasswordRequest extends Request {
-  body: {
-    email: string;
-  }
-}
-
-interface ResetPasswordRequest extends Request {
-  params: {
-    token: string;
-  };
-  body: {
-    password: string;
-    confirmPassword: string;
-  }
-}
 
 authRouter.post('/register', async (req: RegisterRequest, res: Response) => {
     const reqBody = req.body;

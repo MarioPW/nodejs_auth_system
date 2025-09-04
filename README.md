@@ -1,31 +1,44 @@
-# Auth Sysyem with NodeJS
+# Auth System with NodeJS + TypeScript
 
 ## Overview
-This project is a RESTful API built with Express.js, using Sequelize for ORM and Jest for testing. It includes various authentication and user management endpoints, including a password reset functionality.
+This project is a RESTful API built with Express.js and TypeScript, using Sequelize for ORM and Jest for testing. It includes various authentication and user management endpoints, including a password reset functionality.
 
 ## Prerequisites
 Make sure you have the following tools and libraries installed:
-- **Node.js** (v14+ recommended) ESM support is fully compatible from this version.
+- **Node.js** (v16+ recommended) 
 - **npm** or **yarn**
+- **PostgreSQL** (database)
 
 ## Dependencies
 The following packages are used in this project:
 
-- **Express.js**: Framework for building the REST API.
-- **Sequelize**: ORM for database management.
-- **Jest**: Testing framework used for unit and integration testing.
-- **Supertest**: Library for testing HTTP endpoints.
-- **Bcrypt**: For hashing and comparing passwords.
-- **jsonwebtoken (JWT)**: Used to manage user authentication tokens.
-- **Nodemailer**: Handles sending emails (e.g., password reset emails).
-- **Crypto**: Standard Node.js module used for generating secure tokens.
-- **Zod**: For validations
+### Runtime Dependencies:
+- **Express.js**: Framework for building the REST API
+- **Sequelize**: ORM for database management
+- **Bcrypt**: For hashing and comparing passwords
+- **jsonwebtoken (JWT)**: Used to manage user authentication tokens
+- **Nodemailer**: Handles sending emails (e.g., password reset emails)
+- **Zod**: For schema validations
+- **dotenv**: For environment variable management
+- **pg**: PostgreSQL client
+- **cookie-parser**: For cookie handling
+- **cors**: For Cross-Origin Resource Sharing
 
-## Installation
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   cd <repository-folder>
+### Development Dependencies:
+- **TypeScript**: TypeScript language support
+- **ts-node**: TypeScript execution for Node.js
+- **@types/node**: TypeScript definitions for Node.js
+- **@types/express**: TypeScript definitions for Express
+- **@types/bcrypt**: TypeScript definitions for bcrypt
+- **@types/jsonwebtoken**: TypeScript definitions for JWT
+- **@types/nodemailer**: TypeScript definitions for nodemailer
+- **@types/pg**: TypeScript definitions for PostgreSQL
+- **@types/cors**: TypeScript definitions for CORS
+- **@types/cookie-parser**: TypeScript definitions for cookie-parser
+- **@types/jest**: TypeScript definitions for Jest
+- **jest**: Testing framework
+- **supertest**: Library for testing HTTP endpoints
+- **nodemon**: For automatic server restarts during development
 
 
 # Environment Configuration File
@@ -34,15 +47,20 @@ This `.env` file contains the necessary configurations and secrets for the appli
 
 ## Environment Variables
 ``` js
-# Environment Configuration File Example:
+// Database Configuration
+DATABASE_URL=postgresql://username:password@localhost:5432/auth_system_db
 
-JWT_SECRET=WsAPow3rv1w-secure-token-8Hm1pB3qRrAhi55sdj
+// JWT Configuration
+JWT_SECRET=your-super-secret-jwt-key-here
+
+// Application Configuration
 NODE_ENV=development
+PORT=3000
+ROOT_DOMAIN=http://localhost:3000
 
-MAIN_EMAIL=app_mannager@email.com
-MAIN_EMAIL_PASSWORD=SMTP_mail_service_password
-
-ROOT_DOMAIN=http://localhost:3000 or https://www.mywebsite.com
+// Email Configuration (for password reset)
+MAIN_EMAIL=your-email@example.com
+MAIN_EMAIL_PASSWORD=your-email-password
 ```
 
 ### `JWT_SECRET`

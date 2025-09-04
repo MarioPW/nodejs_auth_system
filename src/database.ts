@@ -1,5 +1,4 @@
 import { Sequelize } from 'sequelize';
-import { Dialect } from 'sequelize';
 
 // Validar que la variable de entorno exista
 if (!process.env.DATABASE_URL) {
@@ -21,22 +20,9 @@ export const sequelize = new Sequelize(process.env.DATABASE_URL, {
 export const testConnection = async (): Promise<void> => {
   try {
     await sequelize.authenticate();
-    console.log('Database connection has been established successfully.');
+    console.log('✅ Database connection has been established successfully.');
   } catch (error) {
     console.error('Unable to connect to the database:', error);
     throw error;
   }
 };
-
-// Tipos para la configuración de la base de datos
-export interface DatabaseConfig {
-  url: string;
-  dialect: Dialect;
-  logging: boolean | ((sql: string, timing?: number) => void);
-  dialectOptions?: {
-    ssl?: {
-      require: boolean;
-      rejectUnauthorized: boolean;
-    };
-  };
-}
