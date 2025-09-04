@@ -61,7 +61,8 @@ ROOT_DOMAIN=http://localhost:3000
 // Email Configuration (for password reset)
 MAIN_EMAIL=your-email@example.com
 MAIN_EMAIL_PASSWORD=your-email-password
-```
+
+APP_ROLES=ADMIN,USER,GUEST or any role you need in your system.
 
 ### `JWT_SECRET`
 - **Description**: Secret key used to sign and verify JSON Web Tokens (JWT).
@@ -116,8 +117,69 @@ MAIN_EMAIL_PASSWORD=your-email-password
     "email": "must_be_valid_email_format",
     "password": "min_6_max_50_characters"
   }
+  ```
 
 ---
+
+- **Responses**:
+
+  #### ✅ **200 OK** - Login Successful
+  ```json
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEyMzQ1Njc4LTkwYWItY2RlZi0xMjM0LTU2Nzg5MGFiY2RlZiIsImVtYWlsIjoidXNlckBleGFtcGxlLmNvbSIsImlhdCI6MTYzOTU4ODgwMCwiZXhwIjoxNjM5NTkyNDAwfQ.signature"
+  ```
+  - **Headers**: Sets HTTP-only cookie `access_token` with JWT token
+  - **Cookie Details**:
+    - `httpOnly: true` - Prevents JavaScript access
+    - `secure: true` (in production) - HTTPS only
+    - `sameSite: 'strict'` - CSRF protection
+    - `maxAge: 3600000` (1 hour) - Token expiration
+  - **Body**: Returns the same JWT token as string
+
+  #### ❌ **400 Bad Request** - Validation Error
+  ```json
+  {
+    "error": "validation.error.message"
+  }
+  ```
+  - **Triggers when**: Request body fails schema validation (loginSchema)
+  - **Error message**: Specific validation error from Zod schema
+
+  #### ❌ **401 Unauthorized** - Invalid Credentials
+  ```json
+  {
+    "error": "Invalid credentials"
+  }
+  ```
+  - **Triggers when**:
+    - User with provided email doesn't exist
+    - Password doesn't match the stored hash
+  - **Security Note**: Same message for both scenarios to prevent email enumeration
+
+  #### ❌ **400 Bad Request** - Server Error
+  ```json
+  {
+    "error": "error.message"
+  }
+  ```
+  - **Triggers when**: Database errors, bcrypt errors, JWT errors, or other unexpected server issues occur
+  - **Error message**: The actual error message from the caught exception
+
+---
+
+### **JWT Token Details**
+- **Algorithm**: HS256
+- **Payload**:
+  ```json
+  {
+    "id": "user_uuid",
+    "email": "user@example.com",
+    "iat": 1639588800,
+    "exp": 1639592400
+  }
+  ```
+- **Expiration**: 1 hour from issue time
+- **Usage**: Include in subsequent requests via cookie (automatically handled by browser)
+
 
 
 ### 2. Register a New User

@@ -1,43 +1,12 @@
-import { DataTypes, Model, Optional } from 'sequelize';
+import { DataTypes } from 'sequelize';
 import { sequelize } from '../database';
 
-const roles = [
-    'ADMIN',
-    'USER',
-    'GUEST'
-];
+import { RolesLookupInstance, UserInstance } from '../types/modelTypes';
 
-// Interfaces para RolesLookup - CORREGIDAS
-interface RolesLookupAttributes {
-    id: string;
-    name: string;
-    createdAt: Date;
-    updatedAt: Date;
-}
-
-interface RolesLookupCreationAttributes extends Optional<RolesLookupAttributes, 'id' | 'createdAt' | 'updatedAt'> {}
-
-// Interface para el modelo RolesLookupInstance - AGREGAR
-export interface RolesLookupInstance extends Model<RolesLookupAttributes, RolesLookupCreationAttributes>, RolesLookupAttributes {}
-
-// Interfaces para User - EXPORTAR estas interfaces
-export interface UserAttributes {
-    id?: string;
-    name?: string;
-    email: string;
-    password: string;
-    createdAt?: Date;
-    updatedAt?: Date;
-    role: string;
-    active?: boolean;
-    authenticated?: boolean;
-    resetPasswordToken?: string | null;
-}
-
-export interface UserCreationAttributes extends Optional<UserAttributes, 'id' | 'name' | 'active' | 'authenticated' | 'resetPasswordToken'> {}
-
-// Interface para el modelo UserInstance
-export interface UserInstance extends Model<UserAttributes, UserCreationAttributes>, UserAttributes {}
+// Definición de los roles disponibles desde .env
+const roles = process.env.APP_ROLES 
+  ? process.env.APP_ROLES.split(',').map(role => role.trim())
+  : ['ADMIN', 'USER', 'GUEST']; // Valores por defecto
 
 // Definición de RolesLookup - CORREGIDA con el tipo correcto
 const RolesLookup = sequelize.define<RolesLookupInstance>(
