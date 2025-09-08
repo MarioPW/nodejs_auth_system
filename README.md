@@ -62,8 +62,9 @@ ROOT_DOMAIN=http://localhost:3000
 MAIN_EMAIL=your-email@example.com
 MAIN_EMAIL_PASSWORD=your-email-password
 
+// All roles in a single variable separated by commas
 APP_ROLES=ADMIN,USER,GUEST or any role you need in your system.
-
+``` 
 ### `JWT_SECRET`
 - **Description**: Secret key used to sign and verify JSON Web Tokens (JWT).
 - **Type**: `string`
