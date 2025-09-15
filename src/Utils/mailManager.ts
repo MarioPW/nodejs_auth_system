@@ -20,18 +20,18 @@ interface TransporterConfig {
 }
 
 const transporterConfig: TransporterConfig = {
-  host: "smtp.ethereal.email",
+  host: "smtp.gmail.com",
   port: 587,
   secure: false, // true for port 465, false for other ports
   auth: {
-    user: process.env.MAIN_EMAIL,
-    pass: process.env.MAIN_EMAIL_PASSWORD
+    user: process.env.SMTP_EMAIL,
+    pass: process.env.SMTP_EMAIL_PASSWORD
   },
 };
 
 // Validar que las variables de entorno existan
-if (!process.env.MAIN_EMAIL || !process.env.MAIN_EMAIL_PASSWORD) {
-  console.warn('MAIN_EMAIL or MAIN_EMAIL_PASSWORD environment variables are not set. Email functionality may not work properly.');
+if (!process.env.SMTP_EMAIL || !process.env.SMTP_EMAIL_PASSWORD) {
+  console.warn('SMTP_EMAIL or SMTP_EMAIL_PASSWORD environment variables are not set. Email functionality may not work properly.');
 }
 
 const transporter = nodemailer.createTransport(transporterConfig);
@@ -41,7 +41,7 @@ export class MailManager {
     const { to, subject, text, html } = emailTemplate;
     
     // Validar que el transporter esté configurado correctamente
-    if (!process.env.MAIN_EMAIL || !process.env.MAIN_EMAIL_PASSWORD) {
+    if (!process.env.SMTP_EMAIL || !process.env.SMTP_EMAIL_PASSWORD) {
       throw new Error('Email credentials are not configured');
     }
 
@@ -49,7 +49,7 @@ export class MailManager {
     
     try {
       const result = await transporter.sendMail({
-        from: process.env.MAIN_EMAIL,
+        from: process.env.SMTP_EMAIL,
         to,
         subject,
         text,

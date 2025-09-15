@@ -59,8 +59,8 @@ PORT=3000
 ROOT_DOMAIN=http://localhost:3000
 
 // Email Configuration (for password reset)
-MAIN_EMAIL=your-email@example.com
-MAIN_EMAIL_PASSWORD=your-email-password
+SMTP_EMAIL=your-email@example.com
+SMTP_EMAIL_PASSWORD=your-email-password
 
 // All roles in a single variable separated by commas
 APP_ROLES=ADMIN,USER,GUEST or any role you need in your system.
@@ -80,13 +80,13 @@ APP_ROLES=ADMIN,USER,GUEST or any role you need in your system.
 - **Example**: `development`
 - **Importance**: Enables the application to adjust its configuration and behavior according to the environment.
 
-### `MAIN_EMAIL`
+### `SMTP_EMAIL`
 - **Description**: Primary email address used as the sender for notifications or password recovery.
 - **Type**: `string`
 - **Example**: `app_mannager@email.com`
 - **Note**: This account must be correctly configured to send emails through the service used.
 
-### `MAIN_EMAIL_PASSWORD`
+### `SMTP_EMAIL_PASSWORD`
 - **Description**: Password for the primary email account used to authenticate with the email server.
 - **Type**: `string`
 - **Example**: `smtp service password`
