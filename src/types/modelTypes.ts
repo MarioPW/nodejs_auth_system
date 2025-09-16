@@ -1,6 +1,6 @@
 import { Model, Optional } from 'sequelize';
 
-// Interfaces para RolesLookup
+// Interfaces for RolesLookup
 interface RolesLookupAttributes {
     id: string;
     name: string;
@@ -10,10 +10,10 @@ interface RolesLookupAttributes {
 
 interface RolesLookupCreationAttributes extends Optional<RolesLookupAttributes, 'id' | 'createdAt' | 'updatedAt'> {}
 
-// Interface para el modelo RolesLookupInstance - AGREGAR
+// Interface for the RolesLookupInstance model - ADD
 export interface RolesLookupInstance extends Model<RolesLookupAttributes, RolesLookupCreationAttributes>, RolesLookupAttributes {}
 
-// Interfaces para User - EXPORTAR estas interfaces
+// Interfaces for User - EXPORT these interfaces
 export interface UserAttributes {
     id?: string;
     name?: string;
@@ -29,5 +29,5 @@ export interface UserAttributes {
 
 export interface UserCreationAttributes extends Optional<UserAttributes, 'id' | 'name' | 'active' | 'authenticated' | 'resetPasswordToken'> {}
 
-// Interface para el modelo UserInstance
+// Interface for the UserInstance model
 export interface UserInstance extends Model<UserAttributes, UserCreationAttributes>, UserAttributes {}

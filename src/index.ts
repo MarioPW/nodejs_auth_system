@@ -16,13 +16,11 @@ async function startServer(): Promise<void> {
     await insertRoles();
 
     // // Ejecutar test
-    // testGmailConnection().then(() => {
-    //   console.log('\n🎉 Test completed');
-    //   process.exit(0);
-    // }).catch(error => {
-    //   console.error('\n💥 Test failed with error:', error);
-    //   process.exit(1);
-    // });
+    testGmailConnection().then(() => {
+      console.log('\n🎉 Test completed');
+    }).catch(error => {
+      console.error('\n💥 Test failed with error:', error);
+    });
 
     const port = process.env.PORT || 3000;
     app.listen(port, () => {
@@ -30,7 +28,6 @@ async function startServer(): Promise<void> {
     });
   } catch (error) {
     console.error('Error starting server:', error);
-    process.exit(1);
   }
 }
 

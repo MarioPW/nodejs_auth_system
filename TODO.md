@@ -1,8 +1,9 @@
-[✔] Migrate to TypeScript
-- [✔] Implement TS configration.
-- [✔] Create interfaces in models.ts, schemas, etc.
+[✔] Migrate to TypeScript  
+- [✔] Implement TS configuration.  
+- [✔] Create interfaces in models.ts, schemas, etc.  
 
-[✔] In controller.ts, Remove user role from the JWT and validate when user is call from database.
-[✔] Implement user roles.
-[ ] Implement HTML template for reset-password.
-[ ] Implement logs system.
+[✔] In controller.ts, Remove user role from the JWT and validate when user is called from the database.  
+[✔] Implement user roles.  
+[ ] Implement HTML template for reset-password.  
+[✔] Implement logs system.  
+[ ] Replace fixed Gmail SMTP with flexible configuration using environment variables 

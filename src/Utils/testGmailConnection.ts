@@ -1,4 +1,4 @@
-// test-gmail.js - Script independiente para probar Gmail
+// test-gmail.js - Standalone script to test Gmail
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 
@@ -7,14 +7,14 @@ dotenv.config();
 export const testGmailConnection = async () => {
     console.log('🧪 Testing Gmail SMTP Connection\n');
     
-    const email = 'martriana02@gmail.com';
-    const password = 'jhfogqgircylgats'; // Sin espacios
+    const email = process.env.SMTP_EMAIL || '';
+    const password = process.env.SMTP_EMAIL_PASSWORD || "" ; // No spaces
     
     console.log('📧 Email:', email);
     console.log('🔑 Password length:', password.length);
     console.log('🔑 Password (first 4 chars):', password.substring(0, 4));
     
-    // Configuración 1: Usando service 'gmail'
+    // Configuration 1: Using 'gmail' service
     console.log('\n🔄 Testing with service: "gmail"');
     try {
         const transporter1 = nodemailer.createTransport({
@@ -28,16 +28,16 @@ export const testGmailConnection = async () => {
         await transporter1.verify();
         console.log('✅ Service "gmail" works!');
         
-        // Probar envío de email de prueba
+        // Test sending a test email
         const testEmail = {
             from: email,
-            to: email, // Enviarse a sí mismo
+            to: email, // Send to self
             subject: 'Test Email',
             text: 'This is a test email from Node.js'
         };
         
         const result = await transporter1.sendMail(testEmail);
-        console.log('✅ Test email sent successfully:', result.messageId);
+        console.log('✅ Test email sent successfully:', result.accepted);
         
         return true;
         
@@ -45,7 +45,7 @@ export const testGmailConnection = async () => {
         console.error('❌ Service "gmail" failed:', error.message);
     }
     
-    // Configuración 2: Configuración manual
+    // Configuration 2: Manual setup
     console.log('\n🔄 Testing with manual SMTP settings');
     try {
         const transporter2 = nodemailer.createTransport({
@@ -69,7 +69,7 @@ export const testGmailConnection = async () => {
         console.error('❌ Manual SMTP failed:', error.message);
     }
     
-    // Configuración 3: Puerto seguro 465
+    // Configuration 3: Secure port 465
     console.log('\n🔄 Testing with secure port 465');
     try {
         const transporter3 = nodemailer.createTransport({

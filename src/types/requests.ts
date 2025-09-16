@@ -1,5 +1,5 @@
 import { Request } from 'express';
-// Interfaces para los requests
+// Interfaces for requests
 export interface RegisterRequest extends Request {
   body: {
     email: string;

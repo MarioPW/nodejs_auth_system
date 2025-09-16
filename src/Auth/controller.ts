@@ -32,7 +32,7 @@ authRouter.post('/register', async (req: RegisterRequest, res: Response) => {
             email,
             name: name || email,
             password: hashedPassword,
-            role: 'USER' // Añadir el campo role requerido
+            role: 'USER' // Add the required role field
         });
 
         res.status(201).json(newUser);
