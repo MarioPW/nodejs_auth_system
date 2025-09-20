@@ -101,34 +101,48 @@ APP_ROLES=ADMIN,USER,GUEST or any role you need in your system.
 ---
 
 **Note**: Ensure this file is not uploaded to public repositories to avoid compromising credentials and application security.
+---
 
 
+# 🔐 Authentication API Endpoints
 
-# Endpoints
-
-### 1. Login User
-
-- **URL**: `/login`
-- **Method**: `POST`
-- **Description**: Authenticates a user and provides a session token.
-- **Request Body**:
-
-  ```json
-  {
-    "email": "must_be_valid_email_format",
-    "password": "min_6_max_50_characters"
-  }
-  ```
+## 📋 Quick Overview
+| Endpoint | Method | Description | 
+|----------|---------|-------------|
+| `/auth/register` | POST | Create new user |
+| `/auth/login` | POST | User login |
+| `/auth/logout` | GET | User logout |
+| `/auth/forgot-password` | POST | Password reset request |
+| `/auth/reset-password/:token` | POST | Complete password reset |
 
 ---
 
-- **Responses**:
+## 🚀 Register New User
+**`POST` `/auth/register`**
 
-  #### ✅ **200 OK** - Login Successful
-  ```json
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEyMzQ1Njc4LTkwYWItY2RlZi0xMjM0LTU2Nzg5MGFiY2RlZiIsImVtYWlsIjoidXNlckBleGFtcGxlLmNvbSIsImlhdCI6MTYzOTU4ODgwMCwiZXhwIjoxNjM5NTkyNDAwfQ.signature"
+```json
+{
+  "email": "user@example.com",
+  "password": "password123",
+  "confirmPassword": "password123",
+  "name": "Optional Name"
+}
   ```
-  - **Headers**: Sets HTTP-only cookie `access_token` with JWT token
+**Responses:**
+- ✅ `201 Created`: Returns the created user.
+- ❌ `400 Bad Request`: If validation fails (e.g., invalid email, password mismatch, etc.).
+- ❌ `401 Unauthorized`: If the email is already registered.
+---
+
+## 🚪 Login
+**`POST` `/auth/login`**
+```json
+{
+  "email": "user@example.com", 
+  "password": "password123"
+}
+```
+**Headers**: Sets HTTP-only cookie `access_token` with JWT token
   - **Cookie Details**:
     - `httpOnly: true` - Prevents JavaScript access
     - `secure: true` (in production) - HTTPS only
@@ -136,36 +150,11 @@ APP_ROLES=ADMIN,USER,GUEST or any role you need in your system.
     - `maxAge: 3600000` (1 hour) - Token expiration
   - **Body**: Returns the same JWT token as string
 
-  #### ❌ **400 Bad Request** - Validation Error
-  ```json
-  {
-    "error": "validation.error.message"
-  }
-  ```
-  - **Triggers when**: Request body fails schema validation (loginSchema)
-  - **Error message**: Specific validation error from Zod schema
+**Responses:**
 
-  #### ❌ **401 Unauthorized** - Invalid Credentials
-  ```json
-  {
-    "error": "Invalid credentials"
-  }
-  ```
-  - **Triggers when**:
-    - User with provided email doesn't exist
-    - Password doesn't match the stored hash
-  - **Security Note**: Same message for both scenarios to prevent email enumeration
-
-  #### ❌ **400 Bad Request** - Server Error
-  ```json
-  {
-    "error": "error.message"
-  }
-  ```
-  - **Triggers when**: Database errors, bcrypt errors, JWT errors, or other unexpected server issues occur
-  - **Error message**: The actual error message from the caught exception
-
----
+- ✅ 200 OK - Sets secure HTTP-only cookie with JWT token
+- ❌ 400 Bad Request - Validation error
+- ❌ 401 Unauthorized - Invalid credentials
 
 ### **JWT Token Details**
 - **Algorithm**: HS256
@@ -180,91 +169,47 @@ APP_ROLES=ADMIN,USER,GUEST or any role you need in your system.
   ```
 - **Expiration**: 1 hour from issue time
 - **Usage**: Include in subsequent requests via cookie (automatically handled by browser)
-
-
-
-### 2. Register a New User
-
-- **URL**: `/register`
-- **Method**: `POST`
-- **Description**: Registers a new user with email, password, and optional name.
-- **Request Body**:
-  ```json
-  {
-    "email": "must_be_valid_email_format",
-    "password": "min_6_max_50_characters",
-    "confirmPassword": "must_match_password",
-    "name": "Optional_min_3_max_25_characters"
-  }
-- **Responses**:
-  - `201 Created`: Returns the created user.
-  - `400 Bad Request`: If validation fails (e.g., invalid email, password mismatch, etc.).
-  - `401 Unauthorized`: If the email is already registered.
 ---
 
-### 3. User Login
+## 🚪 Logout
+**`GET` `/auth/logout`**
 
-- **URL**: `/login`
-- **Method**: `POST`
-- **Description**: Authenticates the user and returns a JWT token.
-- **Request Body**:
-  ```json
-  {
-    "email": "must_be_valid_email_format",
-    "password": "min_6_max_50_characters",
-    "name": "Optional_min_3_max_25_characters"
-  }
-- **Responses**:
-  - `200 OK`: Sets a JWT token in an `access_token` cookie with HTTP-only, secure attributes.
-  - `400 Bad Request`: If validation fails.
-  - `401 Unauthorized`: If credentials are invalid.
+**Responses:**
+- ✅ `200 OK` - Clears authentication cookie
+- No body required
 
 ---
 
-### 4. Logout
+## 📧 Password Reset Request  
+**`POST` `/auth/forgot-password`**
 
-- **URL**: `/logout`
-- **Method**: `GET`
-- **Description**: Clears the JWT token cookie.
-- **Response**:
-  - `200 OK`: Cookie `access_token` cleared.
-
+```json
+{
+  "email": "user@example.com"
+}
+```
+ **Responses**:
+  - ✅ `200 OK`: Email sent with reset instructions.
+  - ❌ `400 Bad Request`: If validation fails.
+  - ❌ `401 Unauthorized`: If the email is not registered.
 ---
 
-### 5. Forgot Password
+## 🔑 Complete Password Reset
 
-- **URL**: `/forgot-password`
-- **Method**: `POST`
-- **Description**: Sends a reset password email to the user.
-- **Request Body**:
-  ```json
-  {
-    "email": "must_be_valid_email_format",
-  }
-- **Responses**:
-  - `200 OK`: Email sent with reset instructions.
-  - `400 Bad Request`: If validation fails.
-  - `401 Unauthorized`: If the email is not registered.
-
----
-
-### 6. Reset Password
-
-- **URL**: `/reset-password/:token`
-- **Method**: `POST`
-- **Description**: Resets the user's password using a token.
+`POST` `/auth/reset-password/:token`
+- Resets the user's password using a token.
 - **Request Parameters**:
-  - `token` (string, required): Token received in the reset email.
-- **Request Body**:
+- `token` (string, required): Token received in the reset email.
+
    ```json
   {
     "password": "min_6_max_50_characters",
     "confirmPassword": "must_match_password"
   }
 - **Responses**:
-  - `200 OK`: Password changed successfully.
-  - `400 Bad Request`: If validation fails.
-  - `401 Unauthorized`: If the token is invalid or expired.
+  - ✅ `200 OK`: Password changed successfully.
+  - ❌ `400 Bad Request`: If validation fails.
+  - ❌ `401 Unauthorized`: If the token is invalid or expired.
 
 # Tests
 

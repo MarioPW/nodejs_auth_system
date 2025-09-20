@@ -1,6 +1,5 @@
 // tests/authRouter.test.ts
 import request from 'supertest';
-import { jest, test, describe, beforeAll, expect, beforeEach } from '@jest/globals';
 
 // IMPORTANTE: Mockear ANTES de importar app
 
