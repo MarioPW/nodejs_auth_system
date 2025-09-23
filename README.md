@@ -61,6 +61,11 @@ ROOT_DOMAIN=http://localhost:3000
 // Email Configuration (for password reset)
 SMTP_EMAIL=your-email@example.com
 SMTP_EMAIL_PASSWORD=your-email-password
+TRANSPORTER_SERVICE=gmail // or your SMTP service
+SMTP_HOST=smtp.gmail.com // SMTP server address. This depends on the provider you use.
+SMTP_PORT=587                 // Port (587 for TLS, 465 for SSL)
+SMTP_SECURE=false            // true if using 465 (SSL), false if using 587 (TLS)
+SEND_TEST_EMAIL=true // 
 
 // All roles in a single variable separated by commas
 APP_ROLES=ADMIN,USER,GUEST or any role you need in your system.
@@ -117,8 +122,8 @@ APP_ROLES=ADMIN,USER,GUEST or any role you need in your system.
 
 ---
 
-## 🚀 Register New User
-**`POST` `/auth/register`**
+## `POST` `/auth/register`
+### 🚀 Register New User
 
 ```json
 {
@@ -134,8 +139,8 @@ APP_ROLES=ADMIN,USER,GUEST or any role you need in your system.
 - ❌ `401 Unauthorized`: If the email is already registered.
 ---
 
-## 🚪 Login
-**`POST` `/auth/login`**
+## `POST` `/auth/login`
+### 🚪 Login
 ```json
 {
   "email": "user@example.com", 
@@ -171,8 +176,8 @@ APP_ROLES=ADMIN,USER,GUEST or any role you need in your system.
 - **Usage**: Include in subsequent requests via cookie (automatically handled by browser)
 ---
 
-## 🚪 Logout
-**`GET` `/auth/logout`**
+## `GET` `/auth/logout`
+### 🚪 Logout
 
 **Responses:**
 - ✅ `200 OK` - Clears authentication cookie
@@ -180,8 +185,8 @@ APP_ROLES=ADMIN,USER,GUEST or any role you need in your system.
 
 ---
 
-## 📧 Password Reset Request  
-**`POST` `/auth/forgot-password`**
+## `POST` `/auth/forgot-password`
+### 📧 Password Reset Request  
 
 ```json
 {
@@ -193,10 +198,9 @@ APP_ROLES=ADMIN,USER,GUEST or any role you need in your system.
   - ❌ `400 Bad Request`: If validation fails.
   - ❌ `401 Unauthorized`: If the email is not registered.
 ---
+## `POST` `/auth/reset-password/:token`
+### 🔑 Complete Password Reset
 
-## 🔑 Complete Password Reset
-
-`POST` `/auth/reset-password/:token`
 - Resets the user's password using a token.
 - **Request Parameters**:
 - `token` (string, required): Token received in the reset email.

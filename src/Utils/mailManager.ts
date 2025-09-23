@@ -24,7 +24,7 @@ interface TransporterConfig {
 }
 
 const transporterConfig: TransporterConfig = {
-  service: "gmail",
+  service: process.env.TRANSPORTER_SERVICE,
   auth: {
     user: process.env.SMTP_EMAIL,
     pass: process.env.SMTP_EMAIL_PASSWORD?.replace(/\s/g, '')
@@ -35,9 +35,9 @@ const transporterConfig: TransporterConfig = {
 };
 
 const manualTransporterConfig: TransporterConfig = {
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
+  host: process.env.SMTP_HOST,
+  port: process.env.SMTP_PORT ? parseInt(process.env.SMTP_PORT, 10) : 587,
+  secure: process.env.SMTP_SECURE === 'true',
   auth: {
     user: process.env.SMTP_EMAIL,
     pass: process.env.SMTP_EMAIL_PASSWORD?.replace(/\s/g, '')
@@ -46,7 +46,6 @@ const manualTransporterConfig: TransporterConfig = {
     rejectUnauthorized: false
   }
 };
-
 // Validate configuration at startup
 if (!process.env.SMTP_EMAIL || !process.env.SMTP_EMAIL_PASSWORD) {
   Logger.error('Email credentials are missing', null, {
@@ -60,7 +59,9 @@ if (!process.env.SMTP_EMAIL || !process.env.SMTP_EMAIL_PASSWORD) {
   });
 }
 
-const transporter = nodemailer.createTransport(transporterConfig);
+const transporter = nodemailer.createTransport(
+  process.env.TRANSPORTER_SERVICE ? transporterConfig : manualTransporterConfig
+);
 
 export class MailManager {
   static sendMail = async (emailTemplate: EmailTemplate): Promise<nodemailer.SentMessageInfo> => {
@@ -169,7 +170,7 @@ export class MailManager {
       await transporter.verify();
       Logger.info('SMTP connection test successful', {
         email: process.env.SMTP_EMAIL,
-        service: 'gmail',
+        service: process.env.TRANSPORTER_SERVICE,
       });
       return true;
     } catch (error: any) {
