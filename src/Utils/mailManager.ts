@@ -91,7 +91,7 @@ export class MailManager {
 
       // Send email
       const result = await transporter.sendMail({
-        from: `"Your App Name" <${process.env.SMTP_EMAIL}>`,
+        from: process.env.APP_NAME ? `"${process.env.APP_NAME}" <${process.env.SMTP_EMAIL}>` : process.env.SMTP_EMAIL,
         to,
         subject,
         text,

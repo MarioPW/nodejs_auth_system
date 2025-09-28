@@ -53,6 +53,9 @@ DATABASE_URL=postgresql://username:password@localhost:5432/auth_system_db
 // JWT Configuration
 JWT_SECRET=your-super-secret-jwt-key-here
 
+// Application name (Optional)
+APP_NAME=your_app_name
+
 // Application Configuration
 NODE_ENV=development
 PORT=3000

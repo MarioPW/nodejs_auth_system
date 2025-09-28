@@ -6,5 +6,6 @@
 [✔] Implement user roles.  
 [ ] Implement HTML template for reset-password.  
 [✔] Implement logs system.
-[ ] Replace fixed Gmail SMTP with flexible configuration using environment variables.
+[✔] Replace fixed Gmail SMTP with flexible configuration using environment variables.
+[ ] Implement OAuth2.
 [ ] Implement social auth.
