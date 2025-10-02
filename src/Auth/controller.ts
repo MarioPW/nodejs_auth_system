@@ -9,7 +9,7 @@ import { RegisterRequest, LoginRequest, ForgotPasswordRequest, ResetPasswordRequ
 import { signupSchema, loginSchema, emailSchema, resetPasswordSchema } from './schemas';
 import { MailManager } from '../Utils/mailManager';
 
-export const authRouter = Router();
+export const authRouter: Router = Router();
 
 authRouter.post('/register', async (req: RegisterRequest, res: Response) => {
     const reqBody = req.body;

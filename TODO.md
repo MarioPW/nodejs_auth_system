@@ -9,3 +9,4 @@
 [✔] Replace fixed Gmail SMTP with flexible configuration using environment variables.
 [ ] Implement OAuth2.
 [ ] Implement social auth.
+[ ] Implement Dashboard for metrics.

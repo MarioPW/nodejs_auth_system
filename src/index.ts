@@ -16,16 +16,6 @@ async function testCurrentSMTPConfiguration(): Promise<boolean> {
     console.log('❌ Missing SMTP configuration in environment variables');
     return false;
   }
-  
-  // const port = process.env.SMTP_PORT ? parseInt(process.env.SMTP_PORT) : 587;
-  // const secure = process.env.SMTP_SECURE === 'true';
-  
-  // console.log(`🧪 Testing SMTP: ${host}:${port} (secure: ${secure})`);
-  
-  // const tester = new SMTPTester();
-  // const result = await tester.quickTest(host, port, secure);
-  
-  // return result.success;
   return testSMTPConnection();
 }
 

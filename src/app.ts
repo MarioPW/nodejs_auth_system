@@ -1,10 +1,10 @@
-import express from 'express';
+import express, { Express } from 'express';
 import cookieParser from 'cookie-parser';
 import { authRouter } from './Auth/controller';
 import { loggingMiddleware } from './middleware/loggingMiddleware';
 import rateLimit from 'express-rate-limit';
 
-const app = express();
+const app: Express = express();
 app.use(express.json());
 app.use(cookieParser());
 app.use(loggingMiddleware);
