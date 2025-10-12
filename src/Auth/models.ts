@@ -1,14 +1,11 @@
 import { DataTypes } from 'sequelize';
 import { sequelize } from '../database';
-
 import { RolesLookupInstance, UserInstance } from '../types/modelTypes';
 
-// Definition of available roles from .env
 const roles = process.env.APP_ROLES
     ? process.env.APP_ROLES.split(',').map(role => role.trim())
-    : ['ADMIN', 'USER', 'GUEST']; // Default values
+    : ['ADMIN', 'USER', 'GUEST'];
 
-// Definition of RolesLookup - FIXED with the correct type
 const RolesLookup = sequelize.define<RolesLookupInstance>(
     'RolesLookup',
     {
@@ -33,7 +30,6 @@ const RolesLookup = sequelize.define<RolesLookupInstance>(
     }
 );
 
-// Definition of User with the correct type
 export const User = sequelize.define<UserInstance>(
     'User',
     {
@@ -56,7 +52,7 @@ export const User = sequelize.define<UserInstance>(
         },
         password: {
             type: DataTypes.STRING,
-            allowNull: false
+            allowNull: true, // Nullable for OAuth users
         },
         createdAt: {
             type: DataTypes.DATE,
@@ -86,24 +82,55 @@ export const User = sequelize.define<UserInstance>(
         resetPasswordToken: {
             type: DataTypes.STRING,
             allowNull: true
+        },
+        // ⬇️ FIELDS FOR OAuth2
+        googleId: {
+            type: DataTypes.STRING,
+            allowNull: true,
+            unique: true
+        },
+        githubId: {
+            type: DataTypes.STRING,
+            allowNull: true,
+            unique: true
+        },
+        microsoftId: {
+            type: DataTypes.STRING,
+            allowNull: true,
+            unique: true
+        },
+        facebookId: {
+            type: DataTypes.STRING,
+            allowNull: true,
+            unique: true
+        },
+        profilePicture: {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
+        emailVerified: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false
+        },
+        // Primary provider used for registration
+        primaryProvider: {
+            type: DataTypes.ENUM('local', 'google', 'github', 'microsoft', 'facebook'),
+            defaultValue: 'local'
         }
     }
 );
 
-// Relationship between User and RolesLookup
 User.belongsTo(RolesLookup, {
     foreignKey: 'role',
     targetKey: 'name',
     as: 'roleName'
 });
 
-// Function to insert roles - ALREADY PERFECT, just a small type adjustment
 export const insertRoles = async (): Promise<void> => {
     try {
         console.log('🔍 Checking required roles...');
 
-        // Verify that exactly the roles you need exist
-        const requiredRoles = roles; // Your "roles" array
+        const requiredRoles = roles;
         const existingRoles = await RolesLookup.findAll({
             attributes: ['name']
         });
@@ -118,7 +145,6 @@ export const insertRoles = async (): Promise<void> => {
 
         console.log(`🌱 Inserting ${missingRoles.length} missing roles: ${missingRoles.join(', ')}`);
 
-        // Insert only the missing roles
         await RolesLookup.bulkCreate(
             missingRoles.map(role => ({ name: role })),
             { ignoreDuplicates: true }
