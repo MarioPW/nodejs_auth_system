@@ -39,6 +39,7 @@ const setTokenCookie = (res: Response, token: string): void => {
 
 authRouter.post('/register', async (req: RegisterRequest, res: Response) => {
     const validation = signupSchema.safeParse(req.body);
+    console.log(validation);
 
     if (!validation.success) {
         return res.status(400).json({ error: validation.error.message });
@@ -70,8 +71,7 @@ authRouter.post('/register', async (req: RegisterRequest, res: Response) => {
                 id: newUser.id,
                 email: newUser.email,
                 name: newUser.name
-            },
-            token
+            }
         });
     } catch (error: any) {
         res.status(400).json({ error: error.message });
@@ -117,7 +117,6 @@ authRouter.post('/login', async (req: LoginRequest, res: Response) => {
                 email: user.email,
                 name: user.name
             },
-            token
         });
     } catch (error: any) {
         res.status(400).json({ error: error.message });
@@ -295,12 +294,9 @@ authRouter.get('/profile', async (req: Request, res: Response) => {
 });
 
 authRouter.get('/logout', (req: Request, res: Response) => {
-    req.logout((err) => {
-        if (err) {
-            return res.status(500).json({ error: 'Logout failed' });
-        }
-        res.clearCookie('access_token');
-        res.clearCookie('connect.sid');
-        res.json({ message: 'Logged out successfully' });
-    });
+    res.clearCookie('access_token');
+    res.clearCookie('connect.sid');
+    res.clearCookie('sessionid');
+    
+    res.json({ message: 'Logged out successfully' });
 });

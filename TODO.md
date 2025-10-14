@@ -9,9 +9,10 @@
 [✔] Replace fixed Gmail SMTP with flexible configuration using environment variables.
 [ ] Implement OAuth2.
 [ ] Implement social auth.
-    [ ] - OAuth2 strategies setup (Google, GitHub, Microsoft)
+    [ ] - OAuth2 strategies setup (Google, GitHub, Microsoft, etc.)
     [ ] - Updated TypeScript models & types
     [ ] - Auth controllers implementation
     [ ] - Express & Passport config
     [ ] - pnpm workspace management
+    [ ] - Documentation updating.
 [ ] Implement Dashboard for metrics.

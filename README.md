@@ -137,7 +137,17 @@ APP_ROLES=ADMIN,USER,GUEST or any role you need in your system.
 }
   ```
 **Responses:**
-- ✅ `201 Created`: Returns the created user.
+- ✅ 201 Created - User registered successfully, secure HTTP-only cookie set
+```json
+  {
+    "message": "User created successfully",
+    "user": {
+      "id": "uuid-here",
+      "email": "user@example.com",
+      "name": "User Name"
+    }
+  }
+  ```
 - ❌ `400 Bad Request`: If validation fails (e.g., invalid email, password mismatch, etc.).
 - ❌ `401 Unauthorized`: If the email is already registered.
 ---
@@ -161,6 +171,16 @@ APP_ROLES=ADMIN,USER,GUEST or any role you need in your system.
 **Responses:**
 
 - ✅ 200 OK - Sets secure HTTP-only cookie with JWT token
+```json 
+{
+    "message": "Login successful",
+    "user": {
+      "id": "uuid-here",
+      "email": "user@example.com",
+      "name": "User Name"
+    }
+  }
+  ```
 - ❌ 400 Bad Request - Validation error
 - ❌ 401 Unauthorized - Invalid credentials
 
