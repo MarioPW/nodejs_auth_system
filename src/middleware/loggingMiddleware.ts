@@ -2,21 +2,21 @@
 import { Request, Response, NextFunction } from 'express';
 import { Logger } from '../Utils/logger';
 
-// Extender la interfaz Request para agregar startTime
+// Extend the Request interface to add startTime
 interface RequestWithTiming extends Request {
   startTime?: number;
 }
 
-// Middleware principal de logging
+// Main logging middleware
 export const loggingMiddleware = (req: RequestWithTiming, res: Response, next: NextFunction) => {
   const startTime = Date.now();
   req.startTime = startTime;
 
-  // Capturar información de la request
+  // Capture request information
   const { method, url, ip } = req;
   const userAgent = req.get('user-agent') || '';
   
-  // Log de la request entrante
+  // Log the incoming request
   Logger.http(`Incoming request: ${method} ${url}`, {
     method,
     url,
@@ -25,16 +25,16 @@ export const loggingMiddleware = (req: RequestWithTiming, res: Response, next: N
     timestamp: new Date().toISOString(),
   });
 
-  // Interceptar la respuesta
+  // Intercept the response
   const originalSend = res.send;
   res.send = function(body) {
     const duration = Date.now() - startTime;
     const { statusCode } = res;
     
-    // Determinar el nivel de log basado en el status code
+    // Determine the log level based on the status code
     const logLevel = statusCode >= 400 ? 'error' : statusCode >= 300 ? 'warn' : 'http';
     
-    // Log de la respuesta
+    // Log the response
     const message = `${method} ${url} - ${statusCode} - ${duration}ms`;
     
     if (logLevel === 'error') {
@@ -72,7 +72,7 @@ export const loggingMiddleware = (req: RequestWithTiming, res: Response, next: N
   next();
 };
 
-// Middleware para capturar errores no manejados
+// Middleware to capture unhandled errors
 export const errorLoggingMiddleware = (
   error: Error, 
   req: Request, 
@@ -90,12 +90,12 @@ export const errorLoggingMiddleware = (
     timestamp: new Date().toISOString(),
   });
 
-  // Si ya se envió una respuesta, no hacer nada más
+  // If a response has already been sent, do nothing else
   if (res.headersSent) {
     return next(error);
   }
 
-  // Enviar respuesta de error
+  // Send error response
   res.status(500).json({
     error: process.env.NODE_ENV === 'production' 
       ? 'Internal server error' 
@@ -103,7 +103,7 @@ export const errorLoggingMiddleware = (
   });
 };
 
-// Middleware para requests específicos (opcional)
+// Middleware for specific requests (optional)
 export const authLoggingMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const { method, url } = req;
   const email = req.body?.email;

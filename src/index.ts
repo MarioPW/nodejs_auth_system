@@ -1,11 +1,11 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import { sequelize, testConnection } from './database';
+import { sequelize, testConnection } from './config/database';
 import { insertRoles } from './Auth/models';
 import app from './app';
 
-import { SMTPTester, testSMTPConnection } from './Utils/testSMTPConnection';
+import { testSMTPConnection } from './Utils/testSMTPConnection';
 
 async function testCurrentSMTPConfiguration(): Promise<boolean> {
   const email = process.env.SMTP_EMAIL;
@@ -27,7 +27,7 @@ async function startServer(): Promise<void> {
 
     await insertRoles();
 
-    // Test sólo la configuración actual
+    // Test only the current configuration
     testCurrentSMTPConfiguration().then(success => {
       console.log(success ? '✅ SMTP ready' : '❌ SMTP configuration issues');
     });

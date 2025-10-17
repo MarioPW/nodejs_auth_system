@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-import { sequelize } from '../database';
+import { sequelize } from '../config/database';
 import { RolesLookupInstance, UserInstance } from '../types/modelTypes';
 
 const roles = process.env.APP_ROLES

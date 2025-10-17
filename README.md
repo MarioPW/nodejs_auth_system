@@ -56,6 +56,7 @@ JWT_SECRET=your-super-secret-jwt-key-here
 // Application name (Optional)
 APP_NAME=your_app_name
 
+
 // Application Configuration
 NODE_ENV=development
 PORT=3000
@@ -72,21 +73,38 @@ SEND_TEST_EMAIL=true //
 
 // All roles in a single variable separated by commas
 APP_ROLES=ADMIN,USER,GUEST or any role you need in your system.
+
+// ============================================
+// OAUTH2 - GOOGLE
+// ============================================
+GOOGLE_CLIENT_ID="" // Your Google OAuth 2.0 Client ID
+GOOGLE_CLIENT_SECRET="" // Your Google OAuth 2.0 Client Secret
+
+// ============================================
+// OAUTH2 - GITHUB
+// ============================================
+GITHUB_CLIENT_ID="" // Your GitHub OAuth 2.0 Client ID
+GITHUB_CLIENT_SECRET="" // Your GitHub OAuth 2.0 Client Secret
+
+// ============================================
+// OAUTH2 - MICROSOFT
+// ============================================
+MICROSOFT_CLIENT_ID="" // Your Microsoft OAuth 2.0 Client ID
+MICROSOFT_CLIENT_SECRET="" // Your Microsoft OAuth 2.0 Client Secret
 ``` 
 ### `JWT_SECRET`
-- **Description**: Secret key used to sign and verify JSON Web Tokens (JWT).
+- **Description**: Secret key useo sign and verify // JSON Web Tokens (JWT).
 - **Type**: `string`
 - **Example**: `WsAPow3rv1w-secure-8Hm1pB3qRrAhi55sdj`
-- **Importance**: This key should be secure and random, as it ensures the integrity and security of the authentication system. Do not share this value publicly.
+- **Impance**: This key shoul// d be secure and random, as it ensures the integrity and security of the authentication system. Do not share this value publicly.
 
 ### `NODE_ENV`
 - **Description**: Defines the environment in which the application runs.
-- **Type**: `string`
-- **Allowed Values**:
+- **Type**: `strin- **Allowed Values**:// 
   - `development`: for the development environment.
   - `production`: for the production environment.
-- **Example**: `development`
-- **Importance**: Enables the application to adjust its configuration and behavior according to the environment.
+- **Example*`development`
+- **Importa// nce**: Enables the application to adjust its configuration and behavior according to the environment.
 
 ### `SMTP_EMAIL`
 - **Description**: Primary email address used as the sender for notifications or password recovery.
@@ -122,12 +140,22 @@ APP_ROLES=ADMIN,USER,GUEST or any role you need in your system.
 | `/auth/logout` | GET | User logout |
 | `/auth/forgot-password` | POST | Password reset request |
 | `/auth/reset-password/:token` | POST | Complete password reset |
+## 🌐 OAuth Authentication Endpoints
+
+| Endpoint                          | Method | Description                          |
+|-----------------------------------|--------|--------------------------------------|
+| `/auth/google`                    | GET    | Initiate Google OAuth login          |
+| `/auth/google/callback`           | GET    | Handle Google OAuth callback         |
+| `/auth/github`                    | GET    | Initiate GitHub OAuth login          |
+| `/auth/github/callback`           | GET    | Handle GitHub OAuth callback         |
+| `/auth/microsoft`                 | GET    | Initiate Microsoft OAuth login       |
+| `/auth/microsoft/callback`        | GET    | Handle Microsoft OAuth callback      |
+| `/auth/profile`                   | GET    | Get authenticated user profile       |
 
 ---
 
-## `POST` `/auth/register`
-### 🚀 Register New User
-
+### `POST` `/auth/register`
+🚀 Register New User
 ```json
 {
   "email": "user@example.com",
@@ -152,8 +180,8 @@ APP_ROLES=ADMIN,USER,GUEST or any role you need in your system.
 - ❌ `401 Unauthorized`: If the email is already registered.
 ---
 
-## `POST` `/auth/login`
-### 🚪 Login
+### `POST` `/auth/login`
+🚪 Login
 ```json
 {
   "email": "user@example.com", 
@@ -237,6 +265,36 @@ APP_ROLES=ADMIN,USER,GUEST or any role you need in your system.
   - ✅ `200 OK`: Password changed successfully.
   - ❌ `400 Bad Request`: If validation fails.
   - ❌ `401 Unauthorized`: If the token is invalid or expired.
+
+## 🌐 OAuth Endpoints
+
+### `/auth/{provider}`
+- **Description**: Redirects the user to the OAuth provider's authentication page (Google, GitHub, or Microsoft) to initiate the login process.
+- **Method**: `GET`
+- **Usage**: Replace `{provider}` with the desired OAuth provider (`google`, `github`, or `microsoft`).
+
+### `GET` `/auth/{provider}/callback`
+- **Description**: Handles the response from the OAuth provider after the user authenticates. Generates a JWT, stores it in a secure cookie, and redirects the user to the frontend with the token.
+- **Method**: `GET`
+- **Usage**: Replace `{provider}` with the desired OAuth provider (`google`, `github`, or `microsoft`).
+
+---
+
+## 👤 Profile Endpoint
+
+### `GET` `/auth/profile`
+- **Description**: Retrieves the authenticated user's information using the JWT stored in cookies. Returns user data excluding sensitive fields like password and reset tokens.
+- **Method**: `GET`
+- **Authentication**: Requires a valid JWT in the HTTP-only cookie.
+- **Response Example**:
+  ```json
+  {
+    "id": "user_uuid",
+    "email": "user@example.com",
+    "name": "User Name",
+    "roles": ["USER"]
+  }
+  ```
 
 # Tests
 
