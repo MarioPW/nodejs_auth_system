@@ -1,110 +1,85 @@
 # Auth System with NodeJS + TypeScript
 
 ## Overview
-This project is a RESTful API built with Express.js and TypeScript, using Sequelize for ORM and Jest for testing. It includes various authentication and user management endpoints, including a password reset functionality.
+This project is a RESTful API built with Express.js and TypeScript, using Sequelize for ORM and Jest for testing. It includes various authentication and user management endpoints, including password reset functionality. Additionally, it supports social authentication (social_auth) using OAuth2 with providers like Google, GitHub, and Microsoft.
 
 ## Prerequisites
 Make sure you have the following tools and libraries installed:
 - **Node.js** (v16+ recommended) 
-- **npm** or **yarn**
+- **npm**, **pnpm**(recommended), or **yarn**
 - **PostgreSQL** (database)
-
-## Dependencies
-The following packages are used in this project:
-
-### Runtime Dependencies:
-- **Express.js**: Framework for building the REST API
-- **Sequelize**: ORM for database management
-- **Bcrypt**: For hashing and comparing passwords
-- **jsonwebtoken (JWT)**: Used to manage user authentication tokens
-- **Nodemailer**: Handles sending emails (e.g., password reset emails)
-- **Zod**: For schema validations
-- **dotenv**: For environment variable management
-- **pg**: PostgreSQL client
-- **cookie-parser**: For cookie handling
-- **cors**: For Cross-Origin Resource Sharing
-
-### Development Dependencies:
-- **TypeScript**: TypeScript language support
-- **ts-node**: TypeScript execution for Node.js
-- **@types/node**: TypeScript definitions for Node.js
-- **@types/express**: TypeScript definitions for Express
-- **@types/bcrypt**: TypeScript definitions for bcrypt
-- **@types/jsonwebtoken**: TypeScript definitions for JWT
-- **@types/nodemailer**: TypeScript definitions for nodemailer
-- **@types/pg**: TypeScript definitions for PostgreSQL
-- **@types/cors**: TypeScript definitions for CORS
-- **@types/cookie-parser**: TypeScript definitions for cookie-parser
-- **@types/jest**: TypeScript definitions for Jest
-- **jest**: Testing framework
-- **supertest**: Library for testing HTTP endpoints
-- **nodemon**: For automatic server restarts during development
-
 
 # Environment Configuration File
 
 This `.env` file contains the necessary configurations and secrets for the application. Ensure this file remains secure and is not shared publicly.
 
 ## Environment Variables
-``` js
+```js 
+// ============================================
 // Database Configuration
+// ============================================
+
 DATABASE_URL=postgresql://username:password@localhost:5432/auth_system_db
+// All roles in a single variable separated by commas
+APP_ROLES=ADMIN,GUEST,MODERATOR or any role you need in your system. // Default role: USER; this will be assigned to new users or if no role is provided.
 
-// JWT Configuration
-JWT_SECRET=your-super-secret-jwt-key-here
-
-// Application name (Optional)
-APP_NAME=your_app_name
-
-
+// ============================================
 // Application Configuration
-NODE_ENV=development
+// ============================================
+
+APP_NAME=your_app_name // Application name (Optional)
+NODE_ENV=development  // 
 PORT=3000
 ROOT_DOMAIN=http://localhost:3000
+FRONTEND_URL=www.frontend_url.com/  // The user will be redirected to this URL after authenticating with social_auth.
 
+// ============================================
+// JWT Configuration
+// ============================================
+
+JWT_SECRET=your-super-secret-jwt-key-here // Must be the same key used ACROSS YOUR ENTIRE SYSTEM.
+
+// ============================================
 // Email Configuration (for password reset)
+// ============================================
+
 SMTP_EMAIL=your-email@example.com
 SMTP_EMAIL_PASSWORD=your-email-password
 TRANSPORTER_SERVICE=gmail // or your SMTP service
 SMTP_HOST=smtp.gmail.com // SMTP server address. This depends on the provider you use.
-SMTP_PORT=587                 // Port (587 for TLS, 465 for SSL)
-SMTP_SECURE=false            // true if using 465 (SSL), false if using 587 (TLS)
-SEND_TEST_EMAIL=true // 
-
-// All roles in a single variable separated by commas
-APP_ROLES=ADMIN,USER,GUEST or any role you need in your system.
+SMTP_PORT=587            // Port (587 for TLS, 465 for SSL)
+SMTP_SECURE=false        // true if using 465 (SSL), false if using 587 (TLS)
+SEND_TEST_EMAIL=true // Sends test emails to SMTP_HOST
 
 // ============================================
+// SOCIAL AUTH CREDENTIALS
+// ============================================
+
 // OAUTH2 - GOOGLE
-// ============================================
-GOOGLE_CLIENT_ID="" // Your Google OAuth 2.0 Client ID
-GOOGLE_CLIENT_SECRET="" // Your Google OAuth 2.0 Client Secret
+GOOGLE_CLIENT_ID=your_google_oauth_2.0_client_id // Your Google OAuth 2.0 Client ID
+GOOGLE_CLIENT_SECRET=your_google_oauth_2.0_client_secret // Your Google OAuth 2.0 Client Secret
 
-// ============================================
 // OAUTH2 - GITHUB
-// ============================================
-GITHUB_CLIENT_ID="" // Your GitHub OAuth 2.0 Client ID
-GITHUB_CLIENT_SECRET="" // Your GitHub OAuth 2.0 Client Secret
+GITHUB_CLIENT_ID=your_github_oauth_2.0_client_id // Your GitHub OAuth 2.0 Client ID
+GITHUB_CLIENT_SECRET=your_github_oauth_2.0_client_secret // Your GitHub OAuth 2.0 Client Secret
 
-// ============================================
 // OAUTH2 - MICROSOFT
-// ============================================
-MICROSOFT_CLIENT_ID="" // Your Microsoft OAuth 2.0 Client ID
-MICROSOFT_CLIENT_SECRET="" // Your Microsoft OAuth 2.0 Client Secret
+MICROSOFT_CLIENT_ID=your_microsoft_oauth_2.0_client_id // Your Microsoft OAuth 2.0 Client ID
+MICROSOFT_CLIENT_SECRET=your_microsoft_oauth_2.0_client_secret // Your Microsoft OAuth 2.0 Client Secret
 ``` 
 ### `JWT_SECRET`
-- **Description**: Secret key useo sign and verify // JSON Web Tokens (JWT).
+- **Description**: Secret key used to sign and verify JSON Web Tokens (JWT).
 - **Type**: `string`
 - **Example**: `WsAPow3rv1w-secure-8Hm1pB3qRrAhi55sdj`
-- **Impance**: This key shoul// d be secure and random, as it ensures the integrity and security of the authentication system. Do not share this value publicly.
+- **Impance**: This key should be secure and random, as it ensures the integrity and security of the authentication system. Do not share this value publicly.
 
 ### `NODE_ENV`
 - **Description**: Defines the environment in which the application runs.
-- **Type**: `strin- **Allowed Values**:// 
+- **Type**: `strin- **Allowed Values**:
   - `development`: for the development environment.
   - `production`: for the production environment.
-- **Example*`development`
-- **Importa// nce**: Enables the application to adjust its configuration and behavior according to the environment.
+- **Example**: `development`
+- **Importance**: Enables the application to adjust its configuration and behavior according to the environment.
 
 ### `SMTP_EMAIL`
 - **Description**: Primary email address used as the sender for notifications or password recovery.
@@ -118,17 +93,97 @@ MICROSOFT_CLIENT_SECRET="" // Your Microsoft OAuth 2.0 Client Secret
 - **Example**: `smtp service password`
 - **Importance**: This password is sensitive and should be protected to avoid unauthorized access.
 
-### `ROOT_DOMAIN`
-- **Description**: Root domain of the application.
-- **Type**: `string`
-- **Example**: `http://localhost:3000` or `https://www.mywebsite.com`
-- **Importance**: Specifies the domain from which the application runs, useful for building absolute URLs within the system.
 
+### `ROOT_DOMAIN`
+- **Description**: Specifies the domain from which the application runs, useful for building absolute URLs within the system.
+- **Type**: `string`
+- **Example**: `http://localhost:3000` or `https://api.myapp.com`
+- **Importance**: Defines the domain for HTTP-only cookies and CORS configuration.
+
+---
+
+### `JWT_SECRET`
+- **Description**: Secret key used to sign and verify JSON Web Tokens (JWT).
+- **Type**: `string`
+- **Example**: `my-super-secure-password`
+- **⚠️ Importance**: **Must be the same across all systems consuming the token. This key should be unique and secure.**
+- **Critical**: Share only between the authentication backend and APIs verifying tokens.
+
+---
+
+### `NODE_ENV`
+- **Description**: Defines the environment in which the application runs.
+- **Type**: `string`
+- **Allowed Values**: 
+  - `development`: For development environment.
+  - `production`: For production environment.
+- **Example**: `development`
+- **Importance**: Determines security configurations (e.g., HTTPS, cookies).
+- **Security**: In production, set `secure: true` for cookies.
+
+---
+
+### `FRONTEND_URL`
+- **Description**: URL of the frontend for post-authentication redirections.
+- **Type**: `string`
+- **Example**: `https://my-app.com` or `http://localhost:5173`
+- **Importance**: Must match the allowed origin in CORS configuration.
+- **Flow**: The user is redirected here after a successful login.
+
+---
+### `APP_ROLES`
+- **Description**: Roles available in the system, separated by commas.
+- **Type**: `string`
+- **Example**: `ADMIN,USER,MODERATOR,GUEST`
+- **Importance**: Must include all roles used across the system.
+- **Roles**: Coordinate between frontend, backend, and business logic.
+
+---
+
+### `SMTP_EMAIL`
+- **Description**: Primary email address used for notifications and password recovery.
+- **Type**: `string`
+- **Example**: `app_manager@email.com`
+- **Note**: This account must be configured to send emails.
+
+---
+
+### `SMTP_EMAIL_PASSWORD`
+- **Description**: Password for authenticating with the SMTP server.
+- **Type**: `string`
+- **Example**: `smtp-service-password`
+- **Importance**: Sensitive data that must be protected from unauthorized access.
+
+---
+
+### 📋 Checklist
+- `JWT_SECRET` is identical across all systems.
+- `FRONTEND_URL` matches the allowed origin in CORS.
+
+- `APP_ROLES` includes all necessary roles.
+- `NODE_ENV` is correctly configured for security.
+---
+## 🔐 Environment Variables - OAuth2 Authentication
+
+### `{PROVIDER}_CLIENT_ID`
+- **Description**: Client ID of the application registered with the OAuth provider (e.g., Google, GitHub, Microsoft, or Facebook).
+- **Type**: `string`
+- **Example**: `12345678-1234-1234-1234-123456789abc`
+- **Importance**: Identifies your application to the OAuth provider.
+- **Configuration**: Obtain this value by registering your application in the respective provider's developer console.
+
+---
+
+### `{PROVIDER}_CLIENT_SECRET`
+- **Description**: Client Secret of the application registered with the OAuth provider.
+- **Type**: `string`
+- **Example**: `abc123~-secret-key-here`
+- **Importance**: Sensitive key that authenticates your backend with the OAuth provider.
+- **Security**: Rotate periodically and never expose publicly. Store securely in environment variables.
 ---
 
 **Note**: Ensure this file is not uploaded to public repositories to avoid compromising credentials and application security.
 ---
-
 
 # 🔐 Authentication API Endpoints
 
@@ -194,7 +249,6 @@ MICROSOFT_CLIENT_SECRET="" // Your Microsoft OAuth 2.0 Client Secret
     - `secure: true` (in production) - HTTPS only
     - `sameSite: 'strict'` - CSRF protection
     - `maxAge: 3600000` (1 hour) - Token expiration
-  - **Body**: Returns the same JWT token as string
 
 **Responses:**
 
@@ -300,10 +354,11 @@ MICROSOFT_CLIENT_SECRET="" // Your Microsoft OAuth 2.0 Client Secret
 
 This project uses **Jest** as the testing framework to ensure functionality across modules and routes and **Supertest** for HTTP assertions on API endpoints. Follow these steps to execute the tests:
 
-
 ## Running Tests
 You can run all tests in the project using the following command:
 
 ```bash
 npm test
+pnpm test or
+yarn test
 ```
