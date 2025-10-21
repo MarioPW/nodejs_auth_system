@@ -4,7 +4,7 @@ import { RolesLookupInstance, UserInstance } from '../types/modelTypes';
 
 const roles = process.env.APP_ROLES
     ? process.env.APP_ROLES.split(',').map(role => role.trim())
-    : ['ADMIN', 'USER', 'GUEST'];
+    : ['USER'];
 
 const RolesLookup = sequelize.define<RolesLookupInstance>(
     'RolesLookup',
