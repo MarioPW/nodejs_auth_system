@@ -19,19 +19,23 @@ This `.env` file contains the necessary configurations and secrets for the appli
 // Database Configuration
 // ============================================
 
-DATABASE_URL=postgresql://username:password@localhost:5432/auth_system_db
+DB_HOST=localhost // Hostname or IP address of the database server
+DB_PORT=5432 // Port number on which the database server is running
+DB_NAME=medical_db // Name of the database to connect to
+DB_USER=postgres // Username for authenticating with the database
+DB_PASSWORD=1234 // Password for authenticating with the database
 // All roles in a single variable separated by commas
-APP_ROLES=ADMIN,GUEST,MODERATOR or any role you need in your system. // Default role: USER; this will be assigned to new users or if no role is provided.
+APP_ROLES=ADMIN,GUEST,MODERATOR or any role you need in your system. // Default role: AUTH_USER; this will be assigned to new users or if no role is provided.
 
 // ============================================
 // Application Configuration
 // ============================================
 
 APP_NAME=your_app_name // Application name (Optional)
-NODE_ENV=development  // 
-PORT=3000
+NODE_ENV=development // Allowed values: `development`, `production`. Determines security configurations (e.g., HTTPS, cookies).
+PORT=3000 // Port number on which the application server listens. Example: `3000`.
 ROOT_DOMAIN=http://localhost:3000
-FRONTEND_URL=www.frontend_url.com/  // The user will be redirected to this URL after authenticating with social_auth.
+FRONTEND_URL=www.frontend_url.com/ // The user will be redirected to this URL after authenticating with social_auth.
 
 // ============================================
 // JWT Configuration
@@ -67,119 +71,55 @@ GITHUB_CLIENT_SECRET=your_github_oauth_2.0_client_secret // Your GitHub OAuth 2.
 MICROSOFT_CLIENT_ID=your_microsoft_oauth_2.0_client_id // Your Microsoft OAuth 2.0 Client ID
 MICROSOFT_CLIENT_SECRET=your_microsoft_oauth_2.0_client_secret // Your Microsoft OAuth 2.0 Client Secret
 ``` 
-### `JWT_SECRET`
-- **Description**: Secret key used to sign and verify JSON Web Tokens (JWT).
-- **Type**: `string`
-- **Example**: `WsAPow3rv1w-secure-8Hm1pB3qRrAhi55sdj`
-- **Impance**: This key should be secure and random, as it ensures the integrity and security of the authentication system. Do not share this value publicly.
+## 📋 Environment Variables Reference
 
-### `NODE_ENV`
-- **Description**: Defines the environment in which the application runs.
-- **Type**: `strin- **Allowed Values**:
-  - `development`: for the development environment.
-  - `production`: for the production environment.
-- **Example**: `development`
-- **Importance**: Enables the application to adjust its configuration and behavior according to the environment.
+| Variable               | Type    | Required | Description                                           | Example                          |
+|------------------------|---------|----------|-------------------------------------------------------|----------------------------------|
+| **Database Configuration**                                                                                                   |
+| `DB_HOST`              | string  | ✅        | Database server hostname or IP address               | `localhost`                     |
+| `DB_PORT`              | number  | ✅        | Database server port                                  | `5432`                          |
+| `DB_NAME`              | string  | ✅        | Database name                                         | `medical_db`                    |
+| `DB_USER`              | string  | ✅        | Database username                                     | `postgres`                      |
+| `DB_PASSWORD`          | string  | ✅        | Database password                                     | `1234`                          |
+| **Application Configuration**                                                                                               |
+| `APP_NAME`             | string  | ❌        | Application name                                      | `Medical API`                   |
+| `NODE_ENV`             | string  | ✅        | Environment mode (`development` or `production`)      | `development`                   |
+| `PORT`                 | number  | ✅        | Application server port                               | `3000`                          |
+| `ROOT_DOMAIN`          | string  | ✅        | Application domain URL                                | `http://localhost:3000`         |
+| `FRONTEND_URL`         | string  | ✅        | Frontend URL for OAuth redirects                      | `http://localhost:5173`         |
+| `APP_ROLES`            | string  | ✅        | Comma-separated list of system roles                 | `ADMIN,USER,GUEST`              |
+| **JWT Configuration**                                                                                                       |
+| `JWT_SECRET`           | string  | ✅        | Secret key for JWT signing/verification              | `my-super-secret-key`           |
+| **Email Configuration**                                                                                                     |
+| `SMTP_EMAIL`           | string  | ✅        | Sender email address                                  | `noreply@app.com`               |
+| `SMTP_EMAIL_PASSWORD`  | string  | ✅        | SMTP authentication password                          | `your-password`                 |
+| `TRANSPORTER_SERVICE`  | string  | ✅        | Email service provider                                | `gmail`                         |
+| `SMTP_HOST`            | string  | ✅        | SMTP server hostname                                  | `smtp.gmail.com`                |
+| `SMTP_PORT`            | number  | ✅        | SMTP port (`587` for TLS, `465` for SSL)             | `587`                           |
+| `SMTP_SECURE`          | boolean | ✅        | Use SSL (`true` for `465`, `false` for `587`)        | `false`                         |
+| `SEND_TEST_EMAIL`      | boolean | ❌        | Send test emails on startup                           | `true`                          |
+| **OAuth2 - Google**                                                                                                         |
+| `GOOGLE_CLIENT_ID`     | string  | ⚠️        | Google OAuth 2.0 Client ID                            | `123456-abc.apps.googleusercontent.com` |
+| `GOOGLE_CLIENT_SECRET` | string  | ⚠️        | Google OAuth 2.0 Client Secret                        | `GOCSPX-abc123`                 |
+| **OAuth2 - GitHub**                                                                                                         |
+| `GITHUB_CLIENT_ID`     | string  | ⚠️        | GitHub OAuth 2.0 Client ID                            | `Iv1.a1b2c3d4e5f6g7h8`          |
+| `GITHUB_CLIENT_SECRET` | string  | ⚠️        | GitHub OAuth 2.0 Client Secret                        | `abc123def456`                  |
+| **OAuth2 - Microsoft**                                                                                                      |
+| `MICROSOFT_CLIENT_ID`  | string  | ⚠️        | Microsoft OAuth 2.0 Client ID                         | `12345678-1234-1234-1234-123456789abc` |
+| `MICROSOFT_CLIENT_SECRET` | string | ⚠️      | Microsoft OAuth 2.0 Client Secret                     | `abc~123-secret`                |
 
-### `SMTP_EMAIL`
-- **Description**: Primary email address used as the sender for notifications or password recovery.
-- **Type**: `string`
-- **Example**: `app_mannager@email.com`
-- **Note**: This account must be correctly configured to send emails through the service used.
-
-### `SMTP_EMAIL_PASSWORD`
-- **Description**: Password for the primary email account used to authenticate with the email server.
-- **Type**: `string`
-- **Example**: `smtp service password`
-- **Importance**: This password is sensitive and should be protected to avoid unauthorized access.
-
-
-### `ROOT_DOMAIN`
-- **Description**: Specifies the domain from which the application runs, useful for building absolute URLs within the system.
-- **Type**: `string`
-- **Example**: `http://localhost:3000` or `https://api.myapp.com`
-- **Importance**: Defines the domain for HTTP-only cookies and CORS configuration.
-
----
-
-### `JWT_SECRET`
-- **Description**: Secret key used to sign and verify JSON Web Tokens (JWT).
-- **Type**: `string`
-- **Example**: `my-super-secure-password`
-- **⚠️ Importance**: **Must be the same across all systems consuming the token. This key should be unique and secure.**
-- **Critical**: Share only between the authentication backend and APIs verifying tokens.
-
----
-
-### `NODE_ENV`
-- **Description**: Defines the environment in which the application runs.
-- **Type**: `string`
-- **Allowed Values**: 
-  - `development`: For development environment.
-  - `production`: For production environment.
-- **Example**: `development`
-- **Importance**: Determines security configurations (e.g., HTTPS, cookies).
-- **Security**: In production, set `secure: true` for cookies.
+### Legend:
+- ✅ Required
+- ❌ Optional
+- ⚠️ Required only if using OAuth provider
 
 ---
 
-### `FRONTEND_URL`
-- **Description**: URL of the frontend for post-authentication redirections.
-- **Type**: `string`
-- **Example**: `https://my-app.com` or `http://localhost:5173`
-- **Importance**: Must match the allowed origin in CORS configuration.
-- **Flow**: The user is redirected here after a successful login.
-
----
-### `APP_ROLES`
-- **Description**: Roles available in the system, separated by commas.
-- **Type**: `string`
-- **Example**: `ADMIN,USER,MODERATOR,GUEST`
-- **Importance**: Must include all roles used across the system.
-- **Roles**: Coordinate between frontend, backend, and business logic.
-
----
-
-### `SMTP_EMAIL`
-- **Description**: Primary email address used for notifications and password recovery.
-- **Type**: `string`
-- **Example**: `app_manager@email.com`
-- **Note**: This account must be configured to send emails.
-
----
-
-### `SMTP_EMAIL_PASSWORD`
-- **Description**: Password for authenticating with the SMTP server.
-- **Type**: `string`
-- **Example**: `smtp-service-password`
-- **Importance**: Sensitive data that must be protected from unauthorized access.
-
----
-
-### 📋 Checklist
-- `JWT_SECRET` is identical across all systems.
-- `FRONTEND_URL` matches the allowed origin in CORS.
-
-- `APP_ROLES` includes all necessary roles.
-- `NODE_ENV` is correctly configured for security.
----
-## 🔐 Environment Variables - OAuth2 Authentication
-
-### `{PROVIDER}_CLIENT_ID`
-- **Description**: Client ID of the application registered with the OAuth provider (e.g., Google, GitHub, Microsoft, or Facebook).
-- **Type**: `string`
-- **Example**: `12345678-1234-1234-1234-123456789abc`
-- **Importance**: Identifies your application to the OAuth provider.
-- **Configuration**: Obtain this value by registering your application in the respective provider's developer console.
-
----
-
-### `{PROVIDER}_CLIENT_SECRET`
-- **Description**: Client Secret of the application registered with the OAuth provider.
-- **Type**: `string`
-- **Example**: `abc123~-secret-key-here`
-- **Importance**: Sensitive key that authenticates your backend with the OAuth provider.
-- **Security**: Rotate periodically and never expose publicly. Store securely in environment variables.
+### 🔒 Security Notes
+- **`JWT_SECRET`**: Must be the same across all APIs consuming tokens. Keep it secure and never commit to version control.
+- **OAuth Credentials**: Rotate periodically and store securely. Never expose publicly.
+- **`NODE_ENV`**: In production, ensure `NODE_ENV=production` for proper security settings (HTTPS, secure cookies).
+- **SMTP Password**: Use app-specific passwords when available (e.g., Gmail App Passwords).
 ---
 
 **Note**: Ensure this file is not uploaded to public repositories to avoid compromising credentials and application security.
